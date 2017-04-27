@@ -111,8 +111,6 @@ public class CalculateSales {
 		for(int i = 0; i < totalfiles.length; i++){ //この中では指定のファイルを取り出すだけ
 			String tf = totalfiles[i];
 			if(!tf.matches("^\\d{8}.rcd$")){
-				System.out.println("売上ファイル名が連番になっていません");
-				return;
 			}
 			totals.add(tf); //ArrayListで保持
 			//System.out.println(totals.get(i)); //確認用
