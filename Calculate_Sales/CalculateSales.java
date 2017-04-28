@@ -54,6 +54,7 @@ public class CalculateSales {
 			//System.out.println("(Saleのキーと値)" + branchSaleMap.entrySet()); //確認用
 		} catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} finally{ //開けないものは閉じられないので
 			try {
 				if(br != null)
@@ -93,6 +94,7 @@ public class CalculateSales {
 			//System.out.println("(Saleのキーと値)" + commoditySaleMap.entrySet()); //確認用
 		} catch(IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
+			return;
 		} finally{
 			try {
 				if(br != null)
@@ -169,11 +171,12 @@ public class CalculateSales {
 				}
 
 				//（金額）
-				if((totalamount = br.readLine()) == null || totalamount.matches("\\D")){
+				if((totalamount = br.readLine()) == null || !totalamount.matches("\\d{1,10}")){
+					//System.out.println("(ファイル金額)" + totalamount); //確認用
 					System.out.println("予期せぬエラーが発生しました");
 					return;
 				}
-				//System.out.println("(ファイル金額)" + totalamount); //確認用
+
 
 				//4行目に記入があればエラーを返す
 				if((totalnull = br.readLine()) != null){
@@ -189,7 +192,7 @@ public class CalculateSales {
 				commoditySaleMap.put(totalcommodity, commoditytotal); //Mapに上書き
 
 
-				if(!(branchtotal.toString().matches("^\\d{1,10}$") || commoditytotal.toString().matches("^\\d{1,10}$"))){
+				if(!(branchtotal.toString().length() <= 11 || commoditytotal.toString().length() <= 11)){
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
@@ -203,6 +206,7 @@ public class CalculateSales {
 				br.close();
 				}catch(IOException e){
 				System.out.println("予期せぬエラーが発生しました");
+				return;
 			}
 		}
 
@@ -210,11 +214,12 @@ public class CalculateSales {
 
 
 		//4.集計結果出力
+		BufferedWriter bw = null;
 		File branchout = new File(args[0],"branch.out"); //支店別ファイルの作成
 
 		try{ //降順にソート
 			FileWriter fw = new FileWriter(branchout,true);
-			BufferedWriter bw = new BufferedWriter(fw);
+			bw = new BufferedWriter(fw);
 			List<Map.Entry<String, Long>> entries = new ArrayList<Map.Entry<String, Long>>(branchSaleMap.entrySet());
 			Collections.sort(entries, new Comparator<Map.Entry<String, Long>>(){
 				public int compare(
@@ -228,16 +233,25 @@ public class CalculateSales {
 				bw.write(s.getKey() + "," + branchNameMap.get(s.getKey()) + "," + s.getValue());
 				bw.newLine();
 			}
-			bw.close();
 		} catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
+			return;
+		} finally{
+			try {
+				if(bw != null)
+				bw.close();
+			} catch (IOException e) {
+				System.out.println("予期せぬエラーが発生しました");
+				return;
+			}
 		}
+
 
 		File commodityout = new File(args[0], "commodity.out"); //商品別ファイルの作成
 
 		try{
 			FileWriter fw = new FileWriter(commodityout,true);
-			BufferedWriter bw = new BufferedWriter(fw);
+			bw = new BufferedWriter(fw);
 			List<Map.Entry<String, Long>> entries = new ArrayList<Map.Entry<String, Long>>(commoditySaleMap.entrySet());
 			Collections.sort(entries, new Comparator<Map.Entry<String, Long>>(){
 				public int compare(
@@ -254,6 +268,15 @@ public class CalculateSales {
 			bw.close();
 		} catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
+			return;
+		} finally{
+			try {
+				if(bw != null)
+				bw.close();
+			} catch (IOException e) {
+				System.out.println("予期せぬエラーが発生しました");
+				return;
+			}
 		}
 	}
 
