@@ -43,14 +43,15 @@ public class CalculateSales {
 				if((s1.length == 2) && (s1[0].matches("^\\d{3}$")) && (!(0 == s1[1].length()))){
 					branchNameMap.put(s1[0], s1[1]); //[0][1]を対応させる
 					branchSaleMap.put(s1[0], (long) 0);
-					//System.out.println(branchNameMap.keySet()); //確認用
-					//System.out.println(branchSaleMap.get(s1[0])); //確認用
+					//System.out.println("(Nameの値)" + branchNameMap.get(s1[0])); //確認用
+					//System.out.println("(Saleの値)" + branchSaleMap.get(s1[0])); //確認用
 				}else {
 					System.out.println("支店定義ファイルのフォーマットが不正です");
 					return;
 				}
 			}
-			//System.out.println(branchNameMap.entrySet()); //確認用
+			//System.out.println("(Nameのキーと値)" + branchNameMap.entrySet()); //確認用
+			//System.out.println("(Saleのキーと値)" + branchSaleMap.entrySet()); //確認用
 		} catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
 		} finally{ //開けないものは閉じられないので
@@ -81,14 +82,15 @@ public class CalculateSales {
 				if((s2.length == 2) && (s2[0].matches("^\\w{8}$")) && (!(0 == s2[1].length()))){
 					commodityNameMap.put(s2[0],s2[1]);
 					commoditySaleMap.put(s2[0], (long) 0);
-					//System.out.println(commodityNameMap.get(s2[0])); //確認用
-					//System.out.println(commoditySaleMap.get(s2[0])); //確認用
+					//System.out.println("(Nameの値)" + commodityNameMap.get(s2[0])); //確認用
+					//System.out.println("(Saleの値)" + commoditySaleMap.get(s2[0])); //確認用
 				}else {
 					System.out.println("商品定義ファイルのフォーマットが不正です");
 					return;
 				}
 			}
-			//System.out.println(commoditynamemap.entrySet()); //確認用
+			//System.out.println("(Nameのキーと値)" + commodityNameMap.entrySet()); //確認用
+			//System.out.println("(Saleのキーと値)" + commoditySaleMap.entrySet()); //確認用
 		} catch(IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
 		} finally{
@@ -110,27 +112,27 @@ public class CalculateSales {
 
 		for(int i = 0; i < totalfiles.length; i++){ //この中では指定のファイルを取り出すだけ
 			String tf = totalfiles[i];
-			if(!tf.matches("^\\d{8}.rcd$")){
-			}
+			if(tf.matches("^\\d{8}.rcd$")){ //条件に合うものを取り出してListに保持
 			totals.add(tf); //ArrayListで保持
-			//System.out.println(totals.get(i)); //確認用
+			//System.out.println("(抽出リスト)" + totals.get(i)); //確認用
+			}
 		}
 
 			//連番判定
 		//ファイルの最大値
 		String totalsmax = Collections.max(totals);
-		//System.out.println(totalsmax);
-		int max = Integer.parseInt(totalsmax.replaceAll("[^0-9]",""));
-		//System.out.println(max);
+		//System.out.println("(最大値ファイル)" + totalsmax); //確認用
+		int max = Integer.parseInt(totalsmax.replace(".rcd", ""));
+		//System.out.println("(最大値)" + max); //確認用
 
 		//ファイルの最小値
 		String totalsmin = Collections.min(totals);
-		//System.out.println(totalsmin);
-		int min = Integer.parseInt(totalsmin.replaceAll("[^0-9]", ""));
-		//System.out.println(min);
+		//System.out.println("(最小値ファイル)" + totalsmin); //確認用
+		int min = Integer.parseInt(totalsmin.replace(".rcd", ""));
+		//System.out.println("(最小値)" + min); //確認用
 
-		//System.out.println(totals.size());
-		//System.out.println(max-min+1 == totals.size());
+		//System.out.println("(リスト要素数)" + totals.size()); //確認用
+		//System.out.println(max - min + 1 == totals.size()); //確認用
 
 		if(!(max - min + 1 == totals.size())){
 			System.out.println("売上ファイル名が連番になっていません");
@@ -168,10 +170,10 @@ public class CalculateSales {
 
 				//（金額）
 				if((totalamount = br.readLine()) == null || totalamount.matches("\\D")){
-					//System.out.println(totalamount);
 					System.out.println("予期せぬエラーが発生しました");
 					return;
 				}
+				//System.out.println("(ファイル金額)" + totalamount); //確認用
 
 				//4行目に記入があればエラーを返す
 				if((totalnull = br.readLine()) != null){
@@ -181,9 +183,9 @@ public class CalculateSales {
 
 				//加算
 				Long amount = Long.parseLong(totalamount);
-				branchtotal = amount + branchSaleMap.get(totalbranch);
+				branchtotal = amount + branchSaleMap.get(totalbranch); //支店コードで加算
 				branchSaleMap.put(totalbranch, branchtotal); //Mapに上書き
-				commoditytotal = amount + commoditySaleMap.get(totalcommodity);
+				commoditytotal = amount + commoditySaleMap.get(totalcommodity); //商品コードで加算
 				commoditySaleMap.put(totalcommodity, commoditytotal); //Mapに上書き
 
 
@@ -193,11 +195,13 @@ public class CalculateSales {
 				}
 
 				//確認用
-				System.out.println(amount + branchSaleMap.get(totalbranch) + "(支店)"); //支店コードで加算
-				System.out.println(amount + commoditySaleMap.get(totalcommodity) + "(商品)"); //商品コードで加算
+//				System.out.println("(ファイル支店コード)" + totalbranch);
+//				System.out.println("(ファイル商品コード)" + totalcommodity);
+//				System.out.println("(支店別金額)" + branchtotal);
+//				System.out.println("(商品別金額)" + commoditytotal);
 
 				br.close();
-			}catch(IOException e){
+				}catch(IOException e){
 				System.out.println("予期せぬエラーが発生しました");
 			}
 		}
@@ -220,7 +224,7 @@ public class CalculateSales {
 				});
 
 			for(Entry<String, Long> s : entries){
-				System.out.println(s.getKey() + "," + branchNameMap.get(s.getKey()) + "," + s.getValue()); //確認用
+				//System.out.println("(支店別金額降順)" + s.getKey() + "," + branchNameMap.get(s.getKey()) + "," + s.getValue()); //確認用
 				bw.write(s.getKey() + "," + branchNameMap.get(s.getKey()) + "," + s.getValue());
 				bw.newLine();
 			}
@@ -243,7 +247,7 @@ public class CalculateSales {
 				});
 
 			for(Entry<String, Long> s : entries){
-				System.out.println(s.getKey() + "," + commodityNameMap.get(s.getKey()) + "," + s.getValue()); //確認用
+				//System.out.println("(商品別金額降順)" + s.getKey() + "," + commodityNameMap.get(s.getKey()) + "," + s.getValue()); //確認用
 				bw.write(s.getKey() + "," + commodityNameMap.get(s.getKey()) + "," + s.getValue());
 				bw.newLine();
 			}
