@@ -22,13 +22,13 @@ public class CalculateSales {
 		HashMap<String, Long> branchSaleMap = new HashMap<String, Long>();
 		HashMap<String, String> commodityNameMap = new HashMap<String, String>();
 		HashMap<String, Long> commoditySaleMap = new HashMap<String, Long>();
-		BufferedReader br = null;
 
 		//コマンドライン引数が1つか確認
 		if(args.length != 1){
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		}
+
 
 		//1.支店定義ファイル読込（メソッド）
 		if(!printIn(args[0], "branch.lst", branchNameMap, branchSaleMap, "支店", "^\\d{3}$")){
@@ -42,107 +42,107 @@ public class CalculateSales {
 
 		//3.集計
 		//指定ファイル抽出
-		File filesearch = new File(args[0] /*←"C:\\Users\\hiramatsu.mina\\課題"*/);
-		String totalfiles[] = filesearch.list();
+		File fileSearch = new File(args[0] /*←"C:\\Users\\hiramatsu.mina\\課題"*/);
+		String saleFiles[] = fileSearch.list();
 
-		ArrayList<String> totals = new ArrayList<String>();
+		ArrayList<String> matchSaleFile = new ArrayList<String>();
 
-		for(int i = 0; i < totalfiles.length; i++){ //この中では指定のファイルを取り出すだけ
-			String tf = totalfiles[i];
-			File filetf = new File(args[0],tf); //ファイルに変換し直す、ディレクトリから
-			if(tf.matches("^\\d{8}.rcd$") && filetf.isFile()){ //条件に合うものを取り出してListに保持
-				totals.add(tf); //ArrayListで保持
-			//System.out.println("(抽出リスト)" + totals.get(i)); //確認用
+		for(int i = 0; i < saleFiles.length; i++){ //この中では指定のファイルを取り出すだけ
+			String sf = saleFiles[i];
+			File fileSf = new File(args[0], sf); //ファイルに変換し直す、ディレクトリから
+			if(fileSf.isFile() && sf.matches("^\\d{8}.rcd$")){ //ファイルかどうか→数字8桁のrcdか
+				matchSaleFile.add(sf); //ArrayListで保持
 			}
 		}
 
 		//連番判定
 			//ファイルの最大値
-		String totalsmax = Collections.max(totals);
-		int max = Integer.parseInt(totalsmax.replace(".rcd", ""));
+		String totalsMax = Collections.max(matchSaleFile);
+		int max = Integer.parseInt(totalsMax.replace(".rcd", ""));
 			//ファイルの最小値
-		String totalsmin = Collections.min(totals);
-		int min = Integer.parseInt(totalsmin.replace(".rcd", ""));
+		String totalsMin = Collections.min(matchSaleFile);
+		int min = Integer.parseInt(totalsMin.replace(".rcd", ""));
 
-		if(max - min + 1 != totals.size()){
+		if(max - min + 1 != matchSaleFile.size()){
 			System.out.println("売上ファイル名が連番になっていません");
 			return;
 		}
 
-		FileReader fr;
-		String totalbranch; //支店コード
-		String totalcommodity; //商品コード
-		String totalamount; //金額
-		String totalnull; //null
-		Long branchtotal; //支店別合計
-		Long commoditytotal; //商品別合計
+		BufferedReader br = null;
 
 		//売上ファイル読込
-		for(int i = 0; i < totals.size(); i++){ //参照しているファイルの要素数で指定
+		for(int i = 0; i < matchSaleFile.size(); i++){ //参照しているファイルの要素数で指定
 			try{
-				File fileread = new File(args[0],totals.get(i)); //ファイルの指定、ディレクトリから
-				fr = new FileReader(fileread);
+				FileReader fr;
+				String totalBranch; //支店コード
+				String totalCommodity; //商品コード
+				String totalAmount; //金額
+				String totalNull; //null
+				Long branchTotal; //支店別合計
+				Long commodityTotal; //商品別合計
+
+				File fileRead = new File(args[0], matchSaleFile.get(i)); //ファイルの指定、ディレクトリから
+				fr = new FileReader(fileRead);
 				br = new BufferedReader(fr);
 
 				//各行があるか  3行か→要素の一致
 				//（支店コード）
-				if((totalbranch = br.readLine()) == null){ //改行でわける、1行ごとに
-					System.out.println(totals.get(i) + "のフォーマットが不正です");
+				if((totalBranch = br.readLine()) == null){ //改行でわける、1行ごとに
+					System.out.println(matchSaleFile.get(i) + "のフォーマットが不正です");
 					return;
 				}
 				//（商品コード）
-				if((totalcommodity = br.readLine()) == null){
-					System.out.println(totals.get(i) + "のフォーマットが不正です");
+				if((totalCommodity = br.readLine()) == null){
+					System.out.println(matchSaleFile.get(i) + "のフォーマットが不正です");
 					return;
 				}
 				//（金額）
-				if((totalamount = br.readLine()) == null){
-					System.out.println(totals.get(i) + "のフォーマットが不正です");
+				if((totalAmount = br.readLine()) == null){
+					System.out.println(matchSaleFile.get(i) + "のフォーマットが不正です");
 					return;
 				}
 				//4行目に記入があればエラーを返す
-				if((totalnull = br.readLine()) != null){
-					System.out.println(totals.get(i) + "のフォーマットが不正です");
+				if((totalNull = br.readLine()) != null){
+					System.out.println(matchSaleFile.get(i) + "のフォーマットが不正です");
 					return;
 				}
 
 				//抽出した要素とmapの要素が一致するか確認
 				//（支店コード）
-				if(!branchSaleMap.containsKey(totalbranch)){
-					System.out.println(totals.get(i) + "の支店コードが不正です");
+				if(!branchSaleMap.containsKey(totalBranch)){
+					System.out.println(matchSaleFile.get(i) + "の支店コードが不正です");
 					return;
 				}
 				//（商品コード）
-				if(!commoditySaleMap.containsKey(totalcommodity)){
-					System.out.println(totals.get(i) + "の商品コードが不正です");
+				if(!commoditySaleMap.containsKey(totalCommodity)){
+					System.out.println(matchSaleFile.get(i) + "の商品コードが不正です");
 					return;
 				}
 				//（金額）
-				if(!totalamount.matches("\\d{1,10}")){
+				if(!totalAmount.matches("\\d{1,10}")){
 					System.out.println("予期せぬエラーが発生しました");
 					return;
 				}
 
 				//加算
-				Long amount = Long.parseLong(totalamount);
-				branchtotal = amount + branchSaleMap.get(totalbranch);//支店コードで加算
-				commoditytotal = amount + commoditySaleMap.get(totalcommodity); //商品コードで加算
-				if(branchtotal.toString().length() >= 11 || commoditytotal.toString().length() >= 11){
+				Long amount = Long.parseLong(totalAmount);
+				branchTotal = amount + branchSaleMap.get(totalBranch);//支店コードで加算
+				commodityTotal = amount + commoditySaleMap.get(totalCommodity); //商品コードで加算
+				if(branchTotal.toString().length() >= 11 || commodityTotal.toString().length() >= 11){
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
 
 				//Mapに上書き
-				branchSaleMap.put(totalbranch, branchtotal);
-				commoditySaleMap.put(totalcommodity, commoditytotal);
+				branchSaleMap.put(totalBranch, branchTotal);
+				commoditySaleMap.put(totalCommodity, commodityTotal);
 
 			}catch(IOException e){
 				System.out.println("予期せぬエラーが発生しました");
 				return;
 			}finally{
 				try {
-					if(br != null)
-						br.close();
+					if(br != null)	br.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
 					return;
@@ -163,27 +163,27 @@ public class CalculateSales {
 
 	//1.2.定義ファイル読込メソッド
 	//引数にディレクトリ、ファイル名、Mapの名前、Mapの金額、ファイル定義名、正規表現での桁数
-		public static boolean printIn(String dirPath, String fileName, HashMap<String, String>names, HashMap<String, Long>sales, String definefile, String coad){
-			File dirin = new File(dirPath, fileName); //ファイルの指定、ディレクトリから
-			if(!dirin.exists()){ //ファイルの存在確認
-				System.out.println(definefile + "定義ファイルが存在しません");
+		public static boolean printIn(String dirPath, String fileName, HashMap<String, String>names, HashMap<String, Long>sales, String defineFile, String coad){
+			File dirIn = new File(dirPath, fileName); //ファイルの指定、ディレクトリから
+			if(!dirIn.exists()){ //ファイルの存在確認
+				System.out.println(defineFile + "定義ファイルが存在しません");
 				return false;
 			}
 
 			BufferedReader br = null;
-			String dirinS;
+			String dirInS;
 
 			try{
-				FileReader fr = new FileReader(dirin);
+				FileReader fr = new FileReader(dirIn);
 				br = new BufferedReader(fr);
-				while ((dirinS = br.readLine()) != null){ //ファイルを1行ずつ読込
-					String[] s = dirinS.split(",", 0); //カンマで区切る
+				while ((dirInS = br.readLine()) != null){ //ファイルを1行ずつ読込
+					String[] s = dirInS.split(",", 0); //カンマで区切る
 					//正規表現で文字列、桁数の確認
 					if((s.length == 2) && (s[0].matches(coad)) && (0 != s[1].length())){
 						names.put(s[0], s[1]); //[0][1]を対応させる
-						sales.put(s[0], (long) 0);
+						sales.put(s[0], 0L);
 					}else {
-						System.out.println(definefile + "定義ファイルのフォーマットが不正です");
+						System.out.println(defineFile + "定義ファイルのフォーマットが不正です");
 						return false;
 					}
 				}
@@ -192,8 +192,7 @@ public class CalculateSales {
 				return false;
 			} finally{ //開けないものは閉じられないので
 				try {
-					if(br != null)
-						br.close();
+					if(br != null)	br.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
 					return false;
@@ -207,10 +206,10 @@ public class CalculateSales {
 	//引数にディレクトリ、ファイル名、Mapの名前、Mapの金額
 	public static boolean printOut(String dirPath, String fileName, HashMap<String, String>names, HashMap<String, Long>sales){
 		BufferedWriter bw = null;
-		File dirout = new File(dirPath, fileName);
+		File dirOut = new File(dirPath, fileName);
 
 		try{ //降順にソート
-			FileWriter fw = new FileWriter(dirout);
+			FileWriter fw = new FileWriter(dirOut);
 			bw = new BufferedWriter(fw);
 			List<Map.Entry<String, Long>> entries = new ArrayList<Map.Entry<String, Long>>(sales.entrySet());
 			Collections.sort(entries, new Comparator<Map.Entry<String, Long>>(){
@@ -228,8 +227,7 @@ public class CalculateSales {
 			return false;
 		} finally{
 			try {
-				if(bw != null)
-					bw.close();
+				if(bw != null)	bw.close();
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
 				return false;
