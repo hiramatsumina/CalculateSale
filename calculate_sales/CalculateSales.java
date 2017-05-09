@@ -17,18 +17,16 @@ import java.util.Map.Entry;
 
 public class CalculateSales {
 	public static void main(String[] args){
-
-		HashMap<String, String> branchNameMap = new HashMap<String, String>();
-		HashMap<String, Long> branchSaleMap = new HashMap<String, Long>();
-		HashMap<String, String> commodityNameMap = new HashMap<String, String>();
-		HashMap<String, Long> commoditySaleMap = new HashMap<String, Long>();
-
 		//コマンドライン引数が1つか確認
 		if(args.length != 1){
 			System.out.println("予期せぬエラーが発生しました");
 			return;
 		}
 
+		HashMap<String, String> branchNameMap = new HashMap<>();
+		HashMap<String, Long> branchSaleMap = new HashMap<>();
+		HashMap<String, String> commodityNameMap = new HashMap<>();
+		HashMap<String, Long> commoditySaleMap = new HashMap<>();
 
 		//1.支店定義ファイル読込（メソッド）
 		if(!printIn(args[0], "branch.lst", branchNameMap, branchSaleMap, "支店", "^\\d{3}$")){
@@ -39,12 +37,10 @@ public class CalculateSales {
 			return;
 		}
 
-
 		//3.集計
 		//指定ファイル抽出
-		File fileSearch = new File(args[0] /*←"C:\\Users\\hiramatsu.mina\\課題"*/);
+		File fileSearch = new File(args[0]);
 		String saleFiles[] = fileSearch.list();
-
 		ArrayList<String> matchSaleFile = new ArrayList<String>();
 
 		for(int i = 0; i < saleFiles.length; i++){ //この中では指定のファイルを取り出すだけ
@@ -150,7 +146,6 @@ public class CalculateSales {
 			}
 		}
 
-
 		//4.集計結果出力（メソッドにて）
 		if(!printOut(args[0], "branch.out", branchNameMap, branchSaleMap)){
 			return;
@@ -163,43 +158,43 @@ public class CalculateSales {
 
 	//1.2.定義ファイル読込メソッド
 	//引数にディレクトリ、ファイル名、Mapの名前、Mapの金額、ファイル定義名、正規表現での桁数
-		public static boolean printIn(String dirPath, String fileName, HashMap<String, String>names, HashMap<String, Long>sales, String defineFile, String coad){
-			File dirIn = new File(dirPath, fileName); //ファイルの指定、ディレクトリから
-			if(!dirIn.exists()){ //ファイルの存在確認
-				System.out.println(defineFile + "定義ファイルが存在しません");
-				return false;
-			}
+	public static boolean printIn(String dirPath, String fileName, HashMap<String, String>names, HashMap<String, Long>sales, String defineFile, String coad){
+		File dirIn = new File(dirPath, fileName); //ファイルの指定、ディレクトリから
+		if(!dirIn.exists()){ //ファイルの存在確認
+			System.out.println(defineFile + "定義ファイルが存在しません");
+			return false;
+		}
 
-			BufferedReader br = null;
-			String dirInS;
+		BufferedReader br = null;
+		String dirInS;
 
-			try{
-				FileReader fr = new FileReader(dirIn);
-				br = new BufferedReader(fr);
-				while ((dirInS = br.readLine()) != null){ //ファイルを1行ずつ読込
-					String[] s = dirInS.split(",", 0); //カンマで区切る
-					//正規表現で文字列、桁数の確認
-					if((s.length == 2) && (s[0].matches(coad)) && (0 != s[1].length())){
-						names.put(s[0], s[1]); //[0][1]を対応させる
-						sales.put(s[0], 0L);
-					}else {
-						System.out.println(defineFile + "定義ファイルのフォーマットが不正です");
-						return false;
-					}
-				}
-			} catch(IOException e){
-				System.out.println("予期せぬエラーが発生しました");
-				return false;
-			} finally{ //開けないものは閉じられないので
-				try {
-					if(br != null)	br.close();
-				} catch (IOException e) {
-					System.out.println("予期せぬエラーが発生しました");
+		try{
+			FileReader fr = new FileReader(dirIn);
+			br = new BufferedReader(fr);
+			while ((dirInS = br.readLine()) != null){ //ファイルを1行ずつ読込
+				String[] s = dirInS.split(",", 0); //カンマで区切る
+				//正規表現で文字列、桁数の確認
+				if((s.length == 2) && (s[0].matches(coad))){
+					names.put(s[0], s[1]); //[0][1]を対応させる
+					sales.put(s[0], 0L);
+				}else {
+					System.out.println(defineFile + "定義ファイルのフォーマットが不正です");
 					return false;
 				}
 			}
-			return true;
+		} catch(IOException e){
+			System.out.println("予期せぬエラーが発生しました");
+			return false;
+		} finally{ //開けないものは閉じられないので
+			try {
+				if(br != null)	br.close();
+			} catch (IOException e) {
+				System.out.println("予期せぬエラーが発生しました");
+				return false;
+			}
 		}
+		return true;
+	}
 
 
 	//4.集計結果出力メソッド
