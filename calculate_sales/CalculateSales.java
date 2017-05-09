@@ -77,7 +77,7 @@ public class CalculateSales {
 		Long branchtotal; //支店別合計
 		Long commoditytotal; //商品別合計
 
-		//ファイル読込
+		//売上ファイル読込
 		for(int i = 0; i < totals.size(); i++){ //参照しているファイルの要素数で指定
 			try{
 				File fileread = new File(args[0],totals.get(i)); //ファイルの指定、ディレクトリから
@@ -85,22 +85,28 @@ public class CalculateSales {
 				br = new BufferedReader(fr);
 
 				//（支店コード）
-				if((totalbranch = br.readLine()) == null || !branchSaleMap.containsKey(totalbranch)){
-					//改行でわける、1行ごとに
-					//抽出した要素とmapの要素が一致するか確認
+				if((totalbranch = br.readLine()) == null){ //改行でわける、1行ごとに
+					System.out.println(totals.get(i) + "のフォーマットが不正です");
+					return;
+				}
+				if(!branchSaleMap.containsKey(totalbranch)){ //抽出した要素とmapの要素が一致するか確認
 					System.out.println(totals.get(i) + "の支店コードが不正です");
 					return;
 				}
 
 				//（商品コード）
-				if((totalcommodity = br.readLine()) == null || !commoditySaleMap.containsKey(totalcommodity)){
+				if((totalcommodity = br.readLine()) == null){
+					System.out.println(totals.get(i) + "のフォーマットが不正です");
+					return;
+				}
+				if(!commoditySaleMap.containsKey(totalcommodity)){
 					System.out.println(totals.get(i) + "の商品コードが不正です");
 					return;
 				}
 
 				//（金額）
 				if((totalamount = br.readLine()) == null || !totalamount.matches("\\d{1,10}")){
-					System.out.println("予期せぬエラーが発生しました6");
+					System.out.println("予期せぬエラーが発生しました");
 					return;
 				}
 
@@ -132,6 +138,7 @@ public class CalculateSales {
 						br.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
+					return;
 				}
 			}
 		}
@@ -182,6 +189,7 @@ public class CalculateSales {
 						br.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
+					return false;
 				}
 			}
 			return true;
@@ -195,7 +203,7 @@ public class CalculateSales {
 		File dirout = new File(dirPath, fileName);
 
 		try{ //降順にソート
-			FileWriter fw = new FileWriter(dirout,true);
+			FileWriter fw = new FileWriter(dirout);
 			bw = new BufferedWriter(fw);
 			List<Map.Entry<String, Long>> entries = new ArrayList<Map.Entry<String, Long>>(sales.entrySet());
 			Collections.sort(entries, new Comparator<Map.Entry<String, Long>>(){
@@ -217,6 +225,7 @@ public class CalculateSales {
 					bw.close();
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
+				return false;
 			}
 		}
 		return true;
