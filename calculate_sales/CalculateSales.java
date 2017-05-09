@@ -84,35 +84,42 @@ public class CalculateSales {
 				fr = new FileReader(fileread);
 				br = new BufferedReader(fr);
 
+				//各行があるか  3行か→要素の一致
 				//（支店コード）
 				if((totalbranch = br.readLine()) == null){ //改行でわける、1行ごとに
 					System.out.println(totals.get(i) + "のフォーマットが不正です");
 					return;
 				}
-				if(!branchSaleMap.containsKey(totalbranch)){ //抽出した要素とmapの要素が一致するか確認
-					System.out.println(totals.get(i) + "の支店コードが不正です");
-					return;
-				}
-
 				//（商品コード）
 				if((totalcommodity = br.readLine()) == null){
 					System.out.println(totals.get(i) + "のフォーマットが不正です");
 					return;
 				}
+				//（金額）
+				if((totalamount = br.readLine()) == null){
+					System.out.println(totals.get(i) + "のフォーマットが不正です");
+					return;
+				}
+				//4行目に記入があればエラーを返す
+				if((totalnull = br.readLine()) != null){
+					System.out.println(totals.get(i) + "のフォーマットが不正です");
+					return;
+				}
+
+				//抽出した要素とmapの要素が一致するか確認
+				//（支店コード）
+				if(!branchSaleMap.containsKey(totalbranch)){
+					System.out.println(totals.get(i) + "の支店コードが不正です");
+					return;
+				}
+				//（商品コード）
 				if(!commoditySaleMap.containsKey(totalcommodity)){
 					System.out.println(totals.get(i) + "の商品コードが不正です");
 					return;
 				}
-
 				//（金額）
-				if((totalamount = br.readLine()) == null || !totalamount.matches("\\d{1,10}")){
+				if(!totalamount.matches("\\d{1,10}")){
 					System.out.println("予期せぬエラーが発生しました");
-					return;
-				}
-
-				//4行目に記入があればエラーを返す
-				if((totalnull = br.readLine()) != null){
-					System.out.println(totals.get(i) + "のフォーマットが不正です");
 					return;
 				}
 
@@ -120,14 +127,14 @@ public class CalculateSales {
 				Long amount = Long.parseLong(totalamount);
 				branchtotal = amount + branchSaleMap.get(totalbranch);//支店コードで加算
 				commoditytotal = amount + commoditySaleMap.get(totalcommodity); //商品コードで加算
-
 				if(branchtotal.toString().length() >= 11 || commoditytotal.toString().length() >= 11){
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
 
-				branchSaleMap.put(totalbranch, branchtotal); //Mapに上書き
-				commoditySaleMap.put(totalcommodity, commoditytotal); //Mapに上書き
+				//Mapに上書き
+				branchSaleMap.put(totalbranch, branchtotal);
+				commoditySaleMap.put(totalcommodity, commoditytotal);
 
 			}catch(IOException e){
 				System.out.println("予期せぬエラーが発生しました");
